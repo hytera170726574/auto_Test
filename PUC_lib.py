@@ -106,11 +106,8 @@ class base_Test():
                 return 1
             else:
                 return 0
-        #compare = base_Test.compare()
-        #com1=Mytool.compare
         dirs.sort(compare)
         log_Path=path+"/"+dirs[-1]
-        #log_File=open(log_Path)
         plugin_Line=[]
 
         for line in open(log_Path):
@@ -121,13 +118,11 @@ class base_Test():
 
         for i in range(len(plugin_Line)):
             tmpline=str(plugin_Line[i])[4:23]
-            #print tmpline
             time_start=time.strptime(time_start, "%Y-%m-%d %H:%M:%S")
             print time_start
             timeArrary=time.strptime(tmpline,"%Y-%m-%d %H:%M:%S")
             if timeArrary>=time_start:
                 fplugin_Log=plugin_Line[i:]
-                #print fplugin_Log
                 return fplugin_Log
                 break
 
@@ -195,16 +190,6 @@ class Mytool():
             print poslist
             return poslist
 
-    @staticmethod
-    def compare(x, y):
-        stat_x = os.stat(r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log" + "/" + x)
-        stat_y = os.stat(r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log" + "/" + y)
-        if stat_x.st_ctime < stat_y.st_ctime:
-            return -1
-        elif stat_x.st_ctime > stat_y.st_ctime:
-            return 1
-        else:
-            return 0
 
     def return_Dgna_Input(self):
         bT = base_Test()
