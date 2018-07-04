@@ -1,5 +1,0 @@
-time.struct_time(tm_year=2018, tm_mon=6, tm_mday=8, tm_hour=15, tm_min=25, tm_sec=33, tm_wday=4, tm_yday=159, tm_isdst=0)('170726574l', [], ['10.110.15.134', '10.110.15.135', '10.110.15.136', '169.254.133.124'])
-time.struct_time(tm_year=2018, tm_mon=6, tm_mday=8, tm_hour=15, tm_min=25, tm_sec=34, tm_wday=4, tm_yday=159, tm_isdst=0)('170726574l', [], ['10.110.15.134', '10.110.15.135', '10.110.15.136', '169.254.133.124'])
-time.struct_time(tm_year=2018, tm_mon=6, tm_mday=8, tm_hour=15, tm_min=25, tm_sec=35, tm_wday=4, tm_yday=159, tm_isdst=0)('170726574l', [], ['10.110.15.134', '10.110.15.135', '10.110.15.136', '169.254.133.124'])
-time.struct_time(tm_year=2018, tm_mon=6, tm_mday=8, tm_hour=15, tm_min=25, tm_sec=36, tm_wday=4, tm_yday=159, tm_isdst=0)('170726574l', [], ['10.110.15.134', '10.110.15.135', '10.110.15.136', '169.254.133.124'])
-time.struct_time(tm_year=2018, tm_mon=6, tm_mday=8, tm_hour=15, tm_min=25, tm_sec=37, tm_wday=4, tm_yday=159, tm_isdst=0)('170726574l', [], ['10.110.15.134', '10.110.15.135', '10.110.15.136', '169.254.133.124'])
