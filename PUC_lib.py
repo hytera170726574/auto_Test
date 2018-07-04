@@ -241,7 +241,7 @@ class Mytool():
         #print log_File
 #\d\d\d\d\-\d\d\-\d\d\\s+\d\d:\d\d:\d\d\\s+\d\d\d
 a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
-test.push
+
 
 
 
