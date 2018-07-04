@@ -84,6 +84,53 @@ class base_Test():
         result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h1, h2))) / len(h1))
         return result
 
+    #此段代码还没有写入总体设计需要注意
+    def log_Read(self,log_Type,Plugin,time_start):
+        if log_Type=="client":
+            path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log"
+        elif log_Type=="server":
+            path=r"C:\ProgramData\PUC\PUC_Server\Log\Log"
+        elif log_Type=="gataway":
+            path=r"C:\ProgramData\PUC\PUC_Gateway\Log\Log"
+        elif log_Type=="client_api":
+            path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_API_Log"
+        dirs=os.listdir(path)
+        #com=Mytool.compare(1,2)
+
+        def compare(x, y):
+            stat_x = os.stat(path + "/" + x)
+            stat_y = os.stat(path + "/" + y)
+            if stat_x.st_ctime < stat_y.st_ctime:
+                return -1
+            elif stat_x.st_ctime > stat_y.st_ctime:
+                return 1
+            else:
+                return 0
+        #compare = base_Test.compare()
+        #com1=Mytool.compare
+        dirs.sort(compare)
+        log_Path=path+"/"+dirs[-1]
+        #log_File=open(log_Path)
+        plugin_Line=[]
+
+        for line in open(log_Path):
+            if Plugin in line:
+                line = str(line)
+                plugin_Line.append(line)
+        print plugin_Line
+
+        for i in range(len(plugin_Line)):
+            tmpline=str(plugin_Line[i])[4:23]
+            #print tmpline
+            time_start=time.strptime(time_start, "%Y-%m-%d %H:%M:%S")
+            print time_start
+            timeArrary=time.strptime(tmpline,"%Y-%m-%d %H:%M:%S")
+            if timeArrary>=time_start:
+                fplugin_Log=plugin_Line[i:]
+                #print fplugin_Log
+                return fplugin_Log
+                break
+
 
 
 class Mytool():
@@ -197,37 +244,18 @@ class Mytool():
             elif "cross" in func:
                 tmp2 = int(int(poslist[1]) + 28 * (a - 1))
             pos = [str(poslist[0]), str(tmp2)]
-            print
-            pos
+            print pos
             return pos
 
-    def log_Read(self,log_Type):
-        if log_Type=="client":
-            path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log"
-        elif log_Type=="server":
-            path=r"C:\ProgramData\PUC\PUC_Server\Log\Log"
-        elif log_Type=="gataway":
-            path=r"C:\ProgramData\PUC\PUC_Gateway\Log\Log"
-        elif log_Type=="client_api":
-            path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_API_Log"
-        dirs=os.listdir(path)
-        #com=Mytool.compare(1,2)
 
-        def compare(x, y):
-            stat_x = os.stat(path + "/" + x)
-            stat_y = os.stat(path + "/" + y)
-            if stat_x.st_ctime < stat_y.st_ctime:
-                return -1
-            elif stat_x.st_ctime > stat_y.st_ctime:
-                return 1
-            else:
-                return 0
-        #compare = base_Test.compare()
-        com1=Mytool.compare
-        dirs.sort(compare)
-        print dirs[-1]
 
-a=Mytool().log_Read("client")
+
+        #for i in range(len(Pl))
+                #print(line)
+                #print plugin_Line
+        #print log_File
+#\d\d\d\d\-\d\d\-\d\d\\s+\d\d:\d\d:\d\d\\s+\d\d\d
+a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
 
 
 
