@@ -162,11 +162,15 @@ class Mytool():
         return text
     def image_Comparsion_Panel(self,x,y,func):
         bT=base_Test()
-        tmp1xy=bT.excel_Pos(x,y,"lstate")
-        tmp2xy=bT.excel_Pos(x,y,"lstate1")
+        tmp1xy=int(bT.excel_Pos(x,y,"lstate"))
+        tmp2xy=int(bT.excel_Pos(x,y,"lstate1"))
         tmpim = bT.cut_Image(tmp1xy[0], tmp1xy[1], tmp2xy[0] - tmp1xy[0], tmp2xy[1] - tmp1xy[1])
         tmpim1=Image.open(func+".png")
         result=bT.image_Rec(tmpim,tmpim1)
+        if result==True:
+            result="right"
+        else:
+            result="wrong"
         print result
         return result
     def return_Postion(self,x,y,func):
@@ -240,7 +244,7 @@ class Mytool():
                 #print plugin_Line
         #print log_File
 #\d\d\d\d\-\d\d\-\d\d\\s+\d\d:\d\d:\d\d\\s+\d\d\d
-a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
+#a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
 
 
 
