@@ -175,7 +175,7 @@ class Mytool():
         end_x=int(tmp2xy[0]) - int(tmp1xy[0])
         end_y=int(tmp2xy[1]) - int(tmp1xy[1])
         tmpim = bT.cut_Image(begin_x, begin_y, end_x, end_y)
-        tmpim1="D:\Python27\Lib\site-packages\\auto_Test\\" + func+".png"
+        tmpim1="D:\Python27\Lib\site-packages\\auto_Test\Pecall.png"
         result=bT.image_Rec(tmpim1)
 
         return result
