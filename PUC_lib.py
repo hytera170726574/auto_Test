@@ -178,6 +178,7 @@ class Mytool():
         tmpim1="D:\Python27\Lib\site-packages\\auto_Test\Pecall.png"
         result=bT.image_Rec(tmpim1)
 
+
         return result
     def return_Postion(self,x,y,func):
         func=str(func)
