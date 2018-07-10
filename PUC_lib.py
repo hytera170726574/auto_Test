@@ -5,12 +5,14 @@ import sys
 import time
 import os
 from PIL import ImageFilter
+from PIL import ImageChops
 import pytesseract
 import xlrd
 from PIL import  Image
 import math
 import operator
 from functools import reduce
+
 class base_Test():
     def __int__(self):
         pass
@@ -32,11 +34,12 @@ class base_Test():
             tmp = 'unkonwn'
         return tmp
     def cut_Image(self,x,y,m,n):
-        x=int(x)
-        y=int(y)
-        w=int(x+m)
-        l=int(y+n)
-        im=ImageGrab.grab(bbox=(x, y, w,l))
+        x1=int(x)
+        y1=int(y)
+        w=int(x1+m)
+        l=int(y1+n)
+        im=ImageGrab.grab(bbox=(x1, y1, w,l))
+        im.save("D:\media\compare.png")
         return im
     def return_Text(self,im,threshold=190):
         Lim = im.convert('L')
@@ -52,7 +55,7 @@ class base_Test():
         text = pytesseract.image_to_string(bim)
         return text
     def excel_Pos(self,a,b,func=''):
-        data=xlrd.open_workbook(r"C:\Python27\Lib\site-packages\auto_Test\config.xlsx")
+        data=xlrd.open_workbook(r"D:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         a=int(a)
         if 0<a<=5:
             b=int(b)
@@ -78,11 +81,14 @@ class base_Test():
             pos_list=["Wrong Parameter"]
             return pos_list
             print "Wrong Parameter"
-    def image_Rec(self,im1,im2):
-        h1 = im1.histogram()
-        h2 = im2.histogram()
-        result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h1, h2))) / len(h1))
-        return result
+    def image_Rec(self,im2):
+        image_one = Image.open("D:\media\compare.png")
+        image_two = Image.open(im2)
+        diff = ImageChops.difference(image_one, image_two)
+        if diff.getbbox() is None:
+            return 1
+        else:
+            return 0
 
     #此段代码还没有写入总体设计需要注意
     def log_Read(self,log_Type,Plugin,time_start):
@@ -162,23 +168,23 @@ class Mytool():
         return text
     def image_Comparsion_Panel(self,x,y,func):
         bT=base_Test()
-        tmp1xy=int(bT.excel_Pos(x,y,"lstate"))
-        tmp2xy=int(bT.excel_Pos(x,y,"lstate1"))
-        tmpim = bT.cut_Image(tmp1xy[0], tmp1xy[1], tmp2xy[0] - tmp1xy[0], tmp2xy[1] - tmp1xy[1])
-        tmpim1=Image.open(func+".png")
-        result=bT.image_Rec(tmpim,tmpim1)
-        if result==True:
-            result="right"
-        else:
-            result="wrong"
-        print result
+        tmp1xy=bT.excel_Pos(x,y,"lstate")
+        tmp2xy=bT.excel_Pos(x,y,"lstate1")
+        begin_x=int(tmp1xy[0])
+        begin_y=int(tmp1xy[1])
+        end_x=int(tmp2xy[0]) - int(tmp1xy[0])
+        end_y=int(tmp2xy[1]) - int(tmp1xy[1])
+        tmpim = bT.cut_Image(begin_x, begin_y, end_x, end_y)
+        tmpim1="D:\Python27\Lib\site-packages\\auto_Test\Pecall.png"
+        result=bT.image_Rec(tmpim1)
+
         return result
     def return_Postion(self,x,y,func):
         func=str(func)
         pos=base_Test().excel_Pos(x,y,func)
         return pos
     def dgna_Pos(self,a,func):
-        data = xlrd.open_workbook(r"C:\Python27\Lib\site-packages\auto_Test\config.xlsx")
+        data = xlrd.open_workbook(r"D:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         sheet_dgna = data.sheet_by_index(1)
         a=int(a)
         if a<=0:
@@ -239,6 +245,8 @@ class Mytool():
 
 
 
+
+
         #for i in range(len(Pl))
                 #print(line)
                 #print plugin_Line
@@ -266,6 +274,10 @@ class Mytool():
 #a=Mytool().return_Dgna()
 
 
-
-
+if __name__ == '__main__':
+    bt=base_Test()
+    a=bt.image_Rec('D:\media\\1.png',
+                   'D:\media\\2.png',
+                   )
+    print a
 
