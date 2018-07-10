@@ -38,6 +38,7 @@ class base_Test():
         l=int(y+n)
         im=ImageGrab.grab(bbox=(x, y, w,l))
         return im
+
     def return_Text(self,im,threshold=190):
         Lim = im.convert('L')
         table=[]
@@ -152,6 +153,7 @@ class Mytool():
                 break
         return tmploc
 
+
     def cut_Panel_Number(self,x,y):
         bT=base_Test()
         tmp1xy=bT.excel_Pos(x,y,"cnumber")
@@ -163,16 +165,18 @@ class Mytool():
         return text
     def image_Comparsion_Panel(self,x,y,func):
         bT=base_Test()
-        tmp1xy=int(bT.excel_Pos(x,y,"lstate"))
-        tmp2xy=int(bT.excel_Pos(x,y,"lstate1"))
-        tmpim = bT.cut_Image(tmp1xy[0], tmp1xy[1], tmp2xy[0] - tmp1xy[0], tmp2xy[1] - tmp1xy[1])
+        tmp1xy=bT.excel_Pos(x,y,"lstate")
+        tmp2xy=bT.excel_Pos(x,y,"lstate1")
+        tmpim = bT.cut_Image(int(tmp1xy[0]), int(tmp1xy[1]), int(tmp2xy[0]) - int(tmp1xy[0]), int(tmp2xy[1]) - int(tmp1xy[1]))
+        tmpim.show()
         tmpim1=Image.open(func+".png")
         result=bT.image_Rec(tmpim,tmpim1)
-        if result==True:
+        if result<=6:
             j="right"
         else:
             j="wrong"
         print result
+        print j
         return j
 
 
@@ -251,7 +255,8 @@ class Mytool():
         #print log_File
 #\d\d\d\d\-\d\d\-\d\d\\s+\d\d:\d\d:\d\d\\s+\d\d\d
 #a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
-
+time.sleep(2)
+Mytool().image_Comparsion_Panel(1,1,"Pncall")
 
 
 
