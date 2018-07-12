@@ -18,20 +18,23 @@ class base_Test():
         pass
     def return_Color(self,im,x,y):
         c=im.getpixel((x,y))
-        if (125 < c[0] < 145) & (160 < c[1] < 180) & (20 < c[2] < 40):
+        #print c
+        if (150 <= c[0] <= 170) & (200 <= c[1] <= 220) & (0 <= c[2] <= 40):
             tmp = 'green'
-        elif (70 < c[0] < 90) & (75 < c[1] < 85) & (80 < c[2] < 95):
+        elif (70 <=c[0] <= 90) & (75 <=c[1] <= 85) & (80 <= c[2] <= 95):
             tmp = 'grey'
-        elif (20 < c[0] < 35) & (110 < c[1] < 125) & (200 < c[2] < 215):
+        elif (20 <= c[0] <= 35) & (110 <= c[1] <= 125) & (200 <= c[2] <=215):
             tmp = 'blue'
-        elif (200 < c[0] < 215) & (120 < c[1] < 135) & (20 < c[2] < 35):
+        elif (200 <= c[0] <= 215) & (120 <= c[1] <= 135) & (20 <= c[2] <= 35):
             tmp = 'orange'
-        elif (195 < c[0] < 205) & (15 < c[1] < 35) & (25 < c[2] < 45):
+        elif (195 <= c[0] <= 205) & (15 <= c[1] <= 35) & (25 <= c[2] <= 45):
             tmp = 'red'
-        elif (245 < c[0] < 255) & (245 < c[1] < 255) & (245 < c[2] < 255):
+            #白色
+        elif (245 <= c[0] <= 255) & (245 <= c[1] <=255) & (245 <= c[2] <= 255):
             tmp = "white"
         else:
             tmp = 'unkonwn'
+        #print tmp
         return tmp
     def cut_Image(self,x,y,m,n):
         x1=int(x)
@@ -39,7 +42,7 @@ class base_Test():
         w=int(x1+m)
         l=int(y1+n)
         im=ImageGrab.grab(bbox=(x1, y1, w,l))
-        im.save("D:\media\compare.png")
+       # im.save("D:\media\compare.png")
         return im
     def return_Text(self,im,threshold=190):
         Lim = im.convert('L')
@@ -131,7 +134,8 @@ class base_Test():
                 fplugin_Log=plugin_Line[i:]
                 return fplugin_Log
                 break
-
+class Getoutofloop(Exception):
+    pass
 
 
 class Mytool():
@@ -184,6 +188,7 @@ class Mytool():
         func=str(func)
         pos=base_Test().excel_Pos(x,y,func)
         return pos
+
     def dgna_Pos(self,a,func):
         data = xlrd.open_workbook(r"D:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         sheet_dgna = data.sheet_by_index(1)
@@ -244,41 +249,33 @@ class Mytool():
             return pos
 
 
+    def Message_Find_MS(self):
+        MS = base_Test()
+        MSpic1 = MS.cut_Image(693, 373, 218, 276)
+        #MSpic1.save("def.jpg")
+        #MSpic1.show()
+        def return_Green():
+            for y_col in range(1, 275):
+                for x_row in range(1, 217):
+                    MScol = MS.return_Color(MSpic1, x_row, y_col)
+                    #print str(x_row )+ "diyici" + str(y_col)
+                    if MScol == "green":
+                        print str(x_row) + "jinru" + str(y_col)
+                        return x_row,y_col
+        def returnWhite(x_row,y_col):
+            for y_col3 in range(y_col, y_col + 33):
+                for x_row3 in range(x_row, x_row+150):
+                    MSco2 = MS.return_Color(MSpic1, x_row3, y_col3)
+                    if (MSco2 == 'white'):
+                        print "测试"
+                        print x_row3, y_col3
+                        return x_row3 ,y_col3
+        tmp1=return_Green()
+        tmp2=returnWhite(tmp1[0],tmp1[1])
+        rel_xrow=693+tmp2[0]
+        rel_ycol=373+tmp2[1]
+        print rel_xrow,rel_ycol
+        return rel_xrow,rel_ycol
 
 
-
-
-        #for i in range(len(Pl))
-                #print(line)
-                #print plugin_Line
-        #print log_File
-#\d\d\d\d\-\d\d\-\d\d\\s+\d\d:\d\d:\d\d\\s+\d\d\d
-#a=Mytool().log_Read("client","[PUCClient][debug]","2018-06-29 15:29:21")
-
-
-
-
-
-
-
-#im=Image.open("55.jpg")
-#text=base_Test().return_Text(im,85)
-#print text
-#time.sleep(3)
-#tmpim=base_Test().cut_Image(0,250,220,605)
-#a=base_Test().return_Color(tmpim,3,9)
-#print a
-#Mytool().cut_Panel_Number(1,1)
-#a=Mytool().return_Postion(1,1,"cnumber")
-#print a
-#time.sleep(2)
-#a=Mytool().return_Dgna()
-
-
-if __name__ == '__main__':
-    bt=base_Test()
-    a=bt.image_Rec('D:\media\\1.png',
-                   'D:\media\\2.png',
-                   )
-    print a
 
