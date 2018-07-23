@@ -1,6 +1,9 @@
 # -*-coding:utf-8 -*-
 from  ctypes import *
 from PIL import ImageGrab
+import mysql.connector
+import socket
+from time import ctime
 import sys
 import time
 import os
@@ -12,7 +15,32 @@ from PIL import  Image
 import math
 import operator
 from functools import reduce
+class platform_test():
+    def __int__(self):
+        pass
+    #此函数用于向中控模拟元发送消息，用于调取中控模拟源以执行某些用例
+    #data为数据，mso_ip为中控ip
+    def call_mso(self,data,mso_ip):
+        s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s_udp.sendto(data.encode("utf-8"), (mso_ip, 38000))
+        s_udp.close()
 
+
+
+        #此函数用于数据库查询，后期根据数据表形式，拼接sql语句
+    def sql_search(self,host,user,password,database):
+        config = {
+            'host': host,
+            'user': user,
+            'password': password,
+            'port': '3306',
+            'database': database
+        }
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute('select * from SDSMsGpsInfo where LDSID = %s', ('5555002',))
+        values = cursor.fetchall()
+        return values
 class base_Test():
     def __int__(self):
         pass
@@ -134,8 +162,7 @@ class base_Test():
                 fplugin_Log=plugin_Line[i:]
                 return fplugin_Log
                 break
-class Getoutofloop(Exception):
-    pass
+
 
 
 class Mytool():
@@ -184,6 +211,7 @@ class Mytool():
 
 
         return result
+
     def return_Postion(self,x,y,func):
         func=str(func)
         pos=base_Test().excel_Pos(x,y,func)
@@ -277,5 +305,26 @@ class Mytool():
         print rel_xrow,rel_ycol
         return rel_xrow,rel_ycol
 
+    #用于短信日志判断
+    def test_SDS(self,content,sender,receiver,log_Type,Plugin,time_start):
+        #content-短信内容，sender-发送者，receiver-接收者，log_Type-读取日志的类型，Plugin-插件名称，time_start-开始时间
+        bT=base_Test()
+        tmp_Lists=bT.log_Read(log_Type,Plugin,time_start)
+        for lists in tmp_Lists:
+            if ("content:"+content in lists) and ("sender:"+sender in lists) and ("receiver:"+receiver in lists):
+                a="success"
+                print "success"
+                return a
+            else:
+                a="fail"
+                print "fail"
+                return a
+
+
+#platform_test().socket_client("i love you")
+
+#platform_test().socket_client("i love you,too")
+platform_test().call_mso("fe000001","10.110.21.50")
+#platform_test().socket_client("fe000000")
 
 
