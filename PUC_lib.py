@@ -338,7 +338,7 @@ class Mytool():
 #platform_test().socket_client("i love you")
 
 #platform_test().socket_client("i love you,too")
-platform_test().call_mso("fe000002","10.110.15.136")
+#platform_test().call_mso("fe000002","10.110.15.136")
 #platform_test().socket_client("fe000000")
 
 
