@@ -24,6 +24,20 @@ class platform_test():
         s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s_udp.sendto(data.encode("utf-8"), (mso_ip, 38000))
         s_udp.close()
+    #用于接收mso模拟源发回的ack，host为模拟源ip地址，端口为对端发送端口号
+    def rev_mso(self,host,port):
+        s_udprev = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s_udprev.bind((host, port))
+
+        try:
+            s_udprev.settimeout(5)
+            data = s_udprev.recvfrom(1024)
+            print data
+            return data
+
+        except socket.timeout:
+            print "time_out"
+            return "time_out"
 
 
 
@@ -324,7 +338,7 @@ class Mytool():
 #platform_test().socket_client("i love you")
 
 #platform_test().socket_client("i love you,too")
-platform_test().call_mso("fe000001","10.110.21.50")
+platform_test().call_mso("fe000002","10.110.15.136")
 #platform_test().socket_client("fe000000")
 
 
