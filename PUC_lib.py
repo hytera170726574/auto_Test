@@ -42,7 +42,7 @@ class platform_test():
 
 
         #此函数用于数据库查询，后期根据数据表形式，拼接sql语句
-    def sql_search(self,host,user,password,database):
+    def sql_search(self,host,user,password,database,sql):
         config = {
             'host': host,
             'user': user,
@@ -52,7 +52,8 @@ class platform_test():
         }
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
-        cursor.execute('select * from SDSMsGpsInfo where LDSID = %s', ('5555002',))
+        cursor.execute(sql)
+        #cursor.execute('select * from SDSMsGpsInfo where LDSID = %s', ('5555002',))
         values = cursor.fetchall()
         return values
 class base_Test():
