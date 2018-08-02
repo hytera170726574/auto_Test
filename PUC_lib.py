@@ -15,50 +15,12 @@ from PIL import  Image
 import math
 import operator
 from functools import reduce
-class platform_test():
-    def __int__(self):
-        pass
-    #此函数用于向中控模拟元发送消息，用于调取中控模拟源以执行某些用例
-    #data为数据，mso_ip为中控ip
-    def call_mso(self,data,mso_ip):
-        s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s_udp.sendto(data.encode("utf-8"), (mso_ip, 38000))
-        s_udp.close()
-    #用于接收mso模拟源发回的ack，host为模拟源ip地址，端口为对端发送端口号
-    def rev_mso(self,host,port):
-        s_udprev = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s_udprev.bind((host, port))
 
-        try:
-            s_udprev.settimeout(5)
-            data = s_udprev.recvfrom(1024)
-            print data
-            return data
-
-        except socket.timeout:
-            print "time_out"
-            return "time_out"
-
-
-
-        #此函数用于数据库查询，后期根据数据表形式，拼接sql语句
-    def sql_search(self,host,user,password,database,sql):
-        config = {
-            'host': host,
-            'user': user,
-            'password': password,
-            'port': '3306',
-            'database': database
-        }
-        conn = mysql.connector.connect(**config)
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        #cursor.execute('select * from SDSMsGpsInfo where LDSID = %s', ('5555002',))
-        values = cursor.fetchall()
-        return values
 class base_Test():
+
     def __int__(self):
         pass
+
     def return_Color(self,im,x,y):
         c=im.getpixel((x,y))
         #print c
@@ -79,6 +41,7 @@ class base_Test():
             tmp = 'unkonwn'
         #print tmp
         return tmp
+
     def cut_Image(self,x,y,m,n):
         x1=int(x)
         y1=int(y)
@@ -87,6 +50,7 @@ class base_Test():
         im=ImageGrab.grab(bbox=(x1, y1, w,l))
        # im.save("D:\media\compare.png")
         return im
+
     def return_Text(self,im,threshold=190):
         Lim = im.convert('L')
         table=[]
@@ -100,8 +64,9 @@ class base_Test():
         bim.show()
         text = pytesseract.image_to_string(bim)
         return text
+
     def excel_Pos(self,a,b,func=''):
-        data=xlrd.open_workbook(r"D:\Python27\Lib\site-packages\auto_Test\config.xlsx")
+        data=xlrd.open_workbook(r"C:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         a=int(a)
         if 0<a<=5:
             b=int(b)
@@ -127,16 +92,30 @@ class base_Test():
             pos_list=["Wrong Parameter"]
             return pos_list
             print "Wrong Parameter"
-    def image_Rec(self,im2):
+
+    def image_Rec(self,im1,im2):
+        '''
+
+        :param im1: 截得图像
+        :param im2: 待对比图像
+        :return: 区别越小返回值越小
+        '''
+        h1 = im1.histogram()
+        h2 = im2.histogram()
+        result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h1, h2))) / len(h1))
+        return result
+
+    '''def image_Rec(self,func,img_comp):
+    #TODO(LDF)：颖姐请解释一下这段代码
         image_one = Image.open("D:\media\compare.png")
         image_two = Image.open(im2)
         diff = ImageChops.difference(image_one, image_two)
         if diff.getbbox() is None:
             return 1
         else:
-            return 0
+            return 0'''
 
-    #此段代码还没有写入总体设计需要注意
+    #TODO(LDF):此段代码还没有写入总体设计需要注意
     def log_Read(self,log_Type,Plugin,time_start):
         if log_Type=="client":
             path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log"
@@ -179,11 +158,16 @@ class base_Test():
                 break
 
 
-
 class Mytool():
+
     def __int__(self):
         pass
+
     def Find_Item_on_Tree(self):
+        '''
+
+        :return: 返回资源树上第一个灰色位置
+        '''
         bT=base_Test()
         tmpxy=bT.excel_Pos(0,"resource_tree_top")
         #print tmpxy
@@ -196,11 +180,10 @@ class Mytool():
             tmpc=bT.return_Color(tmpim,3,i)
             tmploc=260
             if tmpc=="grey":
-                #tmploc=1
                 tmploc=tmploc+i
-                #tmploc=str(tmploc)
                 print tmploc
                 break
+
         return tmploc
 
     def cut_Panel_Number(self,x,y):
@@ -212,7 +195,18 @@ class Mytool():
         text=bT.return_Text(tmpim)
         print text
         return text
+
     def image_Comparsion_Panel(self,x,y,func):
+
+        '''
+
+        #用于呼叫面板状态对比
+        :param x: 面板相对位置横坐标
+        :param y: 面板相对位置纵坐标
+        :param func: 所选择面板功能
+        :return: 如果两个图像一致，返回1，不同则返回0
+        '''
+
         bT=base_Test()
         tmp1xy=bT.excel_Pos(x,y,"lstate")
         tmp2xy=bT.excel_Pos(x,y,"lstate1")
@@ -220,11 +214,17 @@ class Mytool():
         begin_y=int(tmp1xy[1])
         end_x=int(tmp2xy[0]) - int(tmp1xy[0])
         end_y=int(tmp2xy[1]) - int(tmp1xy[1])
-        tmpim = bT.cut_Image(begin_x, begin_y, end_x, end_y)
-        tmpim1="D:\Python27\Lib\site-packages\\auto_Test\Pecall.png"
-        result=bT.image_Rec(tmpim1)
-
-
+        panelim = bT.cut_Image(begin_x, begin_y, end_x, end_y)
+        print func
+        #Image._show(panelim)
+        #PUC界面中所截取的面板图形
+        #impos='%s%s%s'%('C:\Python27\Lib\site-packages\auto_Test\',func,".png")
+        standardpanel = Image.open("C:\Python27\Lib\site-packages\\auto_Test\\"+func + ".png")
+        #Image._show(standardpanel)
+        #截取好的标准面板图形
+        #tmpim1="D:\Python27\Lib\site-packages\\auto_Test\Pecall.png"
+        result=bT.image_Rec(panelim,standardpanel)
+        #print result
         return result
 
     def return_Postion(self,x,y,func):
@@ -249,7 +249,6 @@ class Mytool():
             print poslist
             return poslist
 
-
     def return_Dgna_Input(self):
         bT = base_Test()
         Top_left_concer = bT.excel_Pos(0, "dgna_input_left")
@@ -273,7 +272,13 @@ class Mytool():
                  #   print "The element can not founded"
 
     def search_Pos(self, a, func):
-        data = xlrd.open_workbook(r"d:\Python27\Lib\site-packages\auto_Test\config.xlsx")
+        '''
+
+        :param a:
+        :param func:
+        :return:
+        '''
+        data = xlrd.open_workbook(r"C:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         sheet_pos = data.sheet_by_index(1)
         tmp = sheet_pos.col_values(0).index(func)
         poslist = str(sheet_pos.cell(tmp, 1).value).split("-")
@@ -290,7 +295,6 @@ class Mytool():
             pos = [str(poslist[0]), str(tmp2)]
             print pos
             return pos
-
 
     def Message_Find_MS(self):
         MS = base_Test()
@@ -322,24 +326,121 @@ class Mytool():
 
     #用于短信日志判断
     def test_SDS(self,content,sender,receiver,log_Type,Plugin,time_start):
+
+        '''
+
+        :param content: 短信内容
+        :param sender: 发送者
+        :param receiver: 接收者
+        :param log_Type: 读取日志的类型
+        :param Plugin: 插件名称
+        :param time_start: 开始时间
+        :return: 查询到返回true，未查询到返回false
+        '''
         #content-短信内容，sender-发送者，receiver-接收者，log_Type-读取日志的类型，Plugin-插件名称，time_start-开始时间
         bT=base_Test()
         tmp_Lists=bT.log_Read(log_Type,Plugin,time_start)
         for lists in tmp_Lists:
             if ("content:"+content in lists) and ("sender:"+sender in lists) and ("receiver:"+receiver in lists):
                 a="success"
-                print "success"
+                print "true"
                 return a
             else:
-                a="fail"
-                print "fail"
+                a="false"
+                print "false"
                 return a
 
+    def panel_Color(self,x,y,descol):
+        '''
+
+        :param x: 面板相对横坐标
+        :param y: 面板相对纵坐标
+        :return: 颜色字符串
+        '''
+
+        bT=base_Test()
+        left_top=bT.excel_Pos(x,y,"cnumber")
+        im=bT.cut_Image(left_top(0),left_top(1),5,5)
+        color=bT.return_Color(im,2,2)
+        if descol==color:
+            a="ture"
+        else:
+            a="false"
+        return a
+
+
+
+class platform_Test():
+
+    def __int__(self):
+        pass
+
+    def call_mso(self, data, mso_ip):
+        '''
+        用于向中控模拟源发送消息
+
+        :param data: eg.fe000001,make mso do the first test case
+        :param mso_ip: mso's ip add
+        :return: nothing
+        '''
+        s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s_udp.sendto(data.encode("utf-8"), (mso_ip, 38000))
+        s_udp.close()
+        #return data
+
+    def rev_mso(self, host, port):
+        '''
+        用于接收mso模拟源发回的ack，host为模拟源ip地址，端口为对端发送端口号
+
+        :param host: mso'ip add
+        :param port: mso send port
+        :return:mso's return ack
+        '''
+        s_udprev = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s_udprev.bind((host, port))
+
+        try:
+            s_udprev.settimeout(5)
+            data = s_udprev.recvfrom(1024)
+            print data
+            return data
+
+        except socket.timeout:
+            print "time_out"
+            return "time_out"
+
+    def sql_search(self, host, user, password, database, sql):
+        '''
+        此函数用于数据库查询，后期根据数据表形式，拼接sql语句
+
+        :param host: database ip addr
+        :param user: database user name
+        :param password: database password
+        :param database: 数据库表名（带确认）
+        :param sql:
+        :return: 数据库查询结果
+        '''
+        # TODO(LDF):此函数用于数据库查询，后期根据数据表形式，拼接sql语句
+        config = {
+            'host': host,
+            'user': user,
+            'password': password,
+            'port': '3306',
+            'database': database
+        }
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        # cursor.execute('select * from SDSMsGpsInfo where LDSID = %s', ('5555002',))
+        values = cursor.fetchall()
+        return values
 
 #platform_test().socket_client("i love you")
 
 #platform_test().socket_client("i love you,too")
 #platform_test().call_mso("fe000002","10.110.15.136")
-#platform_test().socket_client("fe000000")
+#platform_test().socket_client("fe000000")'''
+#time.sleep(2)
+#Mytool().image_Comparsion_Panel(1,1,"Pdcall")
 
 
