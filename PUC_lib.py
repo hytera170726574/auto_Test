@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*-
 from  ctypes import *
+import struct
 from PIL import ImageGrab
 import mysql.connector
 import socket
@@ -22,6 +23,7 @@ class base_Test():
         pass
 
     def return_Color(self,im,x,y):
+        #TODO(LDF):此段代码中的某些阈值条件还有待确认，准确时，请注意调整
         c=im.getpixel((x,y))
         #print c
         if (150 <= c[0] <= 170) & (200 <= c[1] <= 220) & (0 <= c[2] <= 40):
@@ -95,6 +97,7 @@ class base_Test():
 
     def image_Rec(self,im1,im2):
         '''
+        用于两图像的对比工作，若量图像完全相同则返回1，相差越大返回值越大
 
         :param im1: 截得图像
         :param im2: 待对比图像
@@ -117,6 +120,13 @@ class base_Test():
 
     #TODO(LDF):此段代码还没有写入总体设计需要注意
     def log_Read(self,log_Type,Plugin,time_start):
+        '''
+
+        :param log_Type: 日志类型
+        :param Plugin: 待查询插件名称
+        :param time_start: 日志开始时间点
+        :return: 返回符合条件的日志条目
+        '''
         if log_Type=="client":
             path=r"C:\Users\Administrator\AppData\Roaming\PUC\PUC_Client\Log\Client_Log"
         elif log_Type=="server":
@@ -233,7 +243,7 @@ class Mytool():
         return pos
 
     def dgna_Pos(self,a,func):
-        data = xlrd.open_workbook(r"D:\Python27\Lib\site-packages\auto_Test\config.xlsx")
+        data = xlrd.open_workbook(r"c:\Python27\Lib\site-packages\auto_Test\config.xlsx")
         sheet_dgna = data.sheet_by_index(1)
         a=int(a)
         if a<=0:
@@ -250,6 +260,11 @@ class Mytool():
             return poslist
 
     def return_Dgna_Input(self):
+
+        '''
+
+        :return: 返回新建动态重组输入框位置和动态组确认框位置，并且其横纵坐标按顺序放入了c_list中
+        '''
         bT = base_Test()
         Top_left_concer = bT.excel_Pos(0, "dgna_input_left")
         Lower_right_corner = bT.excel_Pos(0, "dgna_input_right")
@@ -259,12 +274,15 @@ class Mytool():
         d = int(Lower_right_corner[1])
         print a,b,c,d
         im = bT.cut_Image(0, 0, 1920, 1080)
-        for i in range(b, d):
-            for x in range(a, c):
-                print x,i
+        #TODO(LDF):遍历图片步长改为5加快遍历速度
+        for i in range(b, d,5):
+            for x in range(a, c,5):
+                #print x,i
                 color = bT.return_Color(im, x, i)
                 if color == "white":
                     c_list = [x, i]
+                    c_list.append(x+97)
+                    c_list.append(i+61)
                     print c_list
                     return c_list
                     break
@@ -314,7 +332,6 @@ class Mytool():
                 for x_row3 in range(x_row, x_row+150):
                     MSco2 = MS.return_Color(MSpic1, x_row3, y_col3)
                     if (MSco2 == 'white'):
-                        print "测试"
                         print x_row3, y_col3
                         return x_row3 ,y_col3
         tmp1=return_Green()
@@ -350,24 +367,70 @@ class Mytool():
                 print "false"
                 return a
 
-    def panel_Color(self,x,y,descol):
+    def panel_Color(self,x,y,descol,wait_time):
         '''
 
         :param x: 面板相对横坐标
         :param y: 面板相对纵坐标
+        :param descol:目标颜色字符串
+        :param wait_time:超时时间，整形，以秒为单位
         :return: 颜色字符串
         '''
 
+        wait_time=int(wait_time)
         bT=base_Test()
         left_top=bT.excel_Pos(x,y,"cnumber")
-        im=bT.cut_Image(left_top(0),left_top(1),5,5)
-        color=bT.return_Color(im,2,2)
-        if descol==color:
-            a="ture"
-        else:
-            a="false"
-        return a
+        color="break"
+        for i in range(1,10*wait_time):
+            im = bT.cut_Image(left_top[0], left_top[1], 5, 5)
+            #Image._show(im)
+            color = bT.return_Color(im, 2, 2)
+            if color==descol:
+                #return color
+                break
+            else:
+                time.sleep(0.1)
+        return color
 
+    def MS_Status(self,status):
+        '''
+        此函数用于当在资源树上找到某手台位置后判断其手台或组的状态
+
+        :param status:需要判断的状态
+        :return:
+        '''
+        if status=="RSS":
+            descolor="blue"
+        elif status=="group_select":
+            descolor="green"
+        elif status=="emergency_alarm":
+            descolor="red"
+        elif status=="GPS":
+            descolor="red"
+
+        left_top_concer=Mytool.Find_Item_on_Tree()
+        im=base_Test().cut_Image(0,left_top_concer,35,270)
+        numcolor=0#目标颜色点数据
+        for x in range(1,270):
+            for y in range (1,35):
+                color=base_Test().return_Color(im,x,y)
+                if cmp(color,descolor):
+                    numcolor=numcolor+1
+        if (descolor=="blue")&(numcolor>10):
+            status_real="online"
+        elif (descolor=="blue")&(numcolor<10):
+            status_real="offline"
+        elif (descolor=="green")&(numcolor>10):
+            status_real="group_selected"
+        elif (descolor == "green") & (numcolor < 10):
+            status_real = "group_select_failed"
+        elif (descolor == "red") & (numcolor > 10):
+            #TODO(ldf):10这个阈值还有待确认
+            status_real="emergency"
+        elif (descolor == "red") & (0<numcolor < 10):
+            status_real="GPS"
+        else:
+            status_real="wrong_status"
 
 
 class platform_Test():
@@ -383,9 +446,17 @@ class platform_Test():
         :param mso_ip: mso's ip add
         :return: nothing
         '''
+        data_int16 = str(hex(int(data[2:], 10)))[2:].zfill(8)
+        #将除去fe的10进制字符串转为8位16进制
+        #data_int10=int(data[2:],10)
+        data_int=data_int16.decode("hex")
+        #解析为16进制字符串
+        hex_data_int16=map(ord,data_int)
+        send_data = struct.pack("%dB" % (len(hex_data_int16)), *hex_data_int16)
+        f_hex="\xfe"+send_data
+        #加入fe标志位
         s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s_udp.sendto(data.encode("utf-8"), (mso_ip, 38000))
-        s_udp.close()
+        s_udp.sendto(f_hex, (mso_ip, 38000))
         #return data
 
     def rev_mso(self, host, port):
@@ -438,9 +509,21 @@ class platform_Test():
 #platform_test().socket_client("i love you")
 
 #platform_test().socket_client("i love you,too")
-#platform_test().call_mso("fe000002","10.110.15.136")
+
+#platform_Test().call_mso("fe000501","10.110.15.134")
 #platform_test().socket_client("fe000000")'''
 #time.sleep(2)
-#Mytool().image_Comparsion_Panel(1,1,"Pdcall")
+#Mytool().panel_Color(2,2,'red',"5")
+#Mytool().return_Dgna_Input()
+#a="fe00000001"
+#b=int("fe",16)
+#print(b)
+#b=int(a,16)
+#print b
+#b=a.encode("hex")
+#date=struct.pack("%dB"%(len(b)),*b)
+#print(b)
+#print(a)
+#print(date)
 
 
